@@ -27,8 +27,8 @@ ui <- fluidPage(
       selectInput(
         inputId = "y",
         label = "Y-axis:",
-        c("Imdb Rating" = "imdb_rating",
-          "Imdb Number of Votes" = "imdb_num_votes",
+        c("IMDB Rating" = "imdb_rating",
+          "IMDB Number of Votes" = "imdb_num_votes",
           "Critics Score" = "critics_score",
           "Audience Score" = "audience_score",
           "Runtime" = "runtime"),
@@ -39,8 +39,8 @@ ui <- fluidPage(
       selectInput(
         inputId = "x",
         label = "X-axis:",
-        c("Imdb Rating" = "imdb_rating",
-          "Imdb Number of Votes" = "imdb_num_votes",
+        c("IMDB Rating" = "imdb_rating",
+          "IMDB Number of Votes" = "imdb_num_votes",
           "Critics Score" = "critics_score",
           "Audience Score" = "audience_score",
           "Runtime" = "runtime"),
@@ -50,7 +50,7 @@ ui <- fluidPage(
       # Select variable for the color
       selectInput(
         inputId = "z",
-        label = "points",
+        label = "Color by:",
         choices = c("Title Type" = "title_type", 
                     "Genre" = "genre", 
                     "MPAA Rating" = "mpaa_rating", 
