@@ -67,9 +67,11 @@ ui <- fluidPage(
   )
 )
 
-# Define server
+# Define server function required to create the scatterplot
 
 server <- function(input, output, session) {
+  
+  #create the scatterplot object to the plotOutput function
   output$scatterplot <- renderPlot({
     ggplot(data = movies, aes(x = .data[[input$x]], y = .data[[input$y]], color = .data[[input$z]])) +
       geom_point()
