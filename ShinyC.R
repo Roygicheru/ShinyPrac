@@ -2,6 +2,7 @@
 
 library(shiny)
 library(ggplot2)
+library(dplyr)
 
 # Get the data
 
@@ -58,11 +59,13 @@ ui <- fluidPage(
                     "Audience Rating" = "audience_rating"),
         selected = "mpaa_rating"
       ),
+      
+      # Subset for title types
       checkboxGroupInput(inputId = "selected_title_type",
                          label = "Select title type:",
-                         choices = levels(moves$title_type),
+                         choices = levels(movies$title_type),
                          selected = levels(movies$title_type)),
-    ),
+      ),
     
     mainPanel(
       # Show scatterplot
@@ -81,11 +84,27 @@ server <- function(input, output, session) {
   output$scatterplot <- renderPlot({
     # Create new variable:
     # ratio of critics and audience scores
-    movies <- movies %>%
-      mutate(score_ratio = audience_score / critics_score)
+    #movies <- movies %>%
+      #mutate(score_ratio = audience_score / critics_score)
     ggplot(data = movies, aes(x = .data[[input$x]], y = .data[[input$y]], color = .data[[input$z]])) +
       geom_point()
   })
+  
+  output$summarytable <- renderTable(
+    {
+      movies <- movies %>%
+        mutate(score_ratio = audience_score / critics_score) %>%
+        filter(title_type %in% input$selected_title_type) %>%
+        group_by(mpaa_rating) %>%
+        summarise(mean_score_ratio = mean(score_ratio), SD = sd(score_ratio), n = n())
+    },
+    striped = TRUE,
+    spacing = "l",
+    align = "lccr",
+    digits = 4,
+    width = "90%",
+    caption = "Score ratio (audience / critics' scores) summary statistics by MPAA rating."
+  )
 }
 
 
