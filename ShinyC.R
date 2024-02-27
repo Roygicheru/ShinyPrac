@@ -82,10 +82,6 @@ server <- function(input, output, session) {
   
   #create the scatterplot object to the plotOutput function
   output$scatterplot <- renderPlot({
-    # Create new variable:
-    # ratio of critics and audience scores
-    #movies <- movies %>%
-      #mutate(score_ratio = audience_score / critics_score)
     ggplot(data = movies, aes(x = .data[[input$x]], y = .data[[input$y]], color = .data[[input$z]])) +
       geom_point()
   })
