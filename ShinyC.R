@@ -69,9 +69,12 @@ ui <- fluidPage(
     
     mainPanel(
       # Show scatterplot
-      plotOutput(outputId = "scatterplot"),
+      plotOutput(outputId = "scatterplot", brush = "plot_brush"),
       # Show data table
-      tableOutput(outputId = "summarytable")
+      tableOutput(outputId = "summarytable"),
+      # Show data table
+      dataTableOutput(outputId = "moviestable"),
+      br()
     )
   )
 )
@@ -101,6 +104,11 @@ server <- function(input, output, session) {
     width = "90%",
     caption = "Score ratio (audience / critics' scores) summary statistics by MPAA rating."
   )
+  
+  output$moviestable <- renderDataTable({
+    nearPoints(movies, brush = input$plot_hover) %>%
+      select(title, audience_score, critics_score)
+  })
 }
 
 
