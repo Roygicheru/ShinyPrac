@@ -7,33 +7,48 @@ ui <- fluidPage(
   useShinyjs(),
   tags$head(
     tags$style(HTML("
-      #header {
-        color: white;
-        background-color: #00008B;
-        padding: 20px;
-        text-align: center;
-        font-size: 24px;
-      }
-      #header img {
-        float: left;
-      }
-      .button-row {
-        display: flex;
-        justify-content: space-between;
+    .btn-primary {
+      background-color: #2c4c8b; /* Custom button color */
+      border: none; /* No border */
+      color: white; /* White text color */
+    }
+    .btn-primary:hover {
+      background-color: #1a3360; /* Darker button color on hover */
+    }
+       #header {
+      color: white;
+      background-color: #2c4c8b;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 40px;
+    }
+    #header img {
+      align-items: left;
+      margin-right: 10px
+    }
+    .button-row {
+      display: flex;
+    }
+      /* Add this part for responsive design */
+      @media (max-width: 600px) {
+        .button-row {
+          flex-direction: column;
+        }
       }
     "))
   ),
   tags$header(
     id = "header",
-    img(src = "https://th.bing.com/th/id/OIP.5m8zEp8lfuvVsi8kJPwU0QHaF5?w=213&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7", height = "50px"), # Replace with your image path
-    "Training Registration Page"
-  ),
+    img(src = "https://is3-ssl.mzstatic.com/image/thumb/Purple115/v4/16/95/55/16955554-bfca-ecd4-9ec7-d9c92350df9c/source/512x512bb.jpg", 
+        height = "120px", width = "250px"),
+    "Training Registration Page"),
   titlePanel(" ", windowTitle = "Training Registration"),
   
   tags$head(
     tags$style(HTML("
       #internal:hover, #corporate:hover {
-        background-color: #00008B;
+        background-color: #2c4c8b;
         color: white;
       }
     "))
@@ -68,7 +83,8 @@ server <- function(input, output, session) {
         numericInput("mobile", "Mobile Number", value = NULL),
         textInput("station", "Station/Region"),
         textInput("super", "Supervisor"),
-        actionButton("submit1", "Submit", class = "btn-primary")
+        actionButton("submit1", "Submit", class = "btn-primary"),
+        tags$br(), tags$br(), tags$br()
       )
     }
   })
@@ -80,7 +96,7 @@ server <- function(input, output, session) {
         numericInput("nationalID", "National ID", value = NULL),
         textInput("company", "Company"),
         numericInput("mobileNo", "Mobile No.", value = NULL),
-        actionButton("submit2", "Submit", class = "btn-primary")
+        actionButton("submit2", "Submit",class = "btn-primary")
       )
     }
   })
@@ -94,7 +110,18 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$submit1, {
-    req(input$fname, input$sname, input$lname, input$staff, input$desig, input$mobile, input$station, input$super)
+    # Check if all fields are filled
+    validate(
+      need(input$fname, "Please fill all fields before submitting."),
+      need(input$sname, "Please fill all fields before submitting."),
+      need(input$lname, "Please fill all fields before submitting."),
+      need(input$staff, "Please fill all fields before submitting."),
+      need(input$desig, "Please fill all fields before submitting."),
+      need(input$mobile, "Please fill all fields before submitting."),
+      need(input$station, "Please fill all fields before submitting."),
+      need(input$super, "Please fill all fields before submitting.")
+    )
+    # Get the input values
     data <- data.frame(
       First_Name = input$fname,
       Second_Name = input$sname,
@@ -105,20 +132,31 @@ server <- function(input, output, session) {
       Station_Region = input$station,
       Supervisor = input$super
     )
+    # Append the input values to the excel sheet
     append_row("internal.xlsx", data)
-    showNotification("Internal employee data saved successfully", type = "message")
+    # Show a success message
+    showNotification("Internal employee data saved successfully", type = "message", id = "message1")
   })
   
   observeEvent(input$submit2, {
-    req(input$participant, input$nationalID, input$company, input$mobileNo)
+    # Check if all fields are filled
+    validate(
+      need(input$participant, "Please fill all fields before submitting."),
+      need(input$nationalID, "Please fill all fields before submitting."),
+      need(input$company, "Please fill all fields before submitting."),
+      need(input$mobileNo, "Please fill all fields before submitting.")
+    )
+    # Get the input values
     data <- data.frame(
       Name_of_Participant = input$participant,
       National_ID = input$nationalID,
       Company = input$company,
       Mobile_No = input$mobileNo
     )
+    # Append the input values to the excel sheet
     append_row("corporate.xlsx", data)
-    showNotification("Corporate client data saved successfully", type = "message")
+    # Show a success message
+    showNotification("Corporate client data saved successfully", type = "message", id = "message2")
   })
   
   append_row <- function(file, row) {
@@ -129,8 +167,17 @@ server <- function(input, output, session) {
       saveWorkbook(wb, file, overwrite = TRUE)
     } else {
       wb <- loadWorkbook(file)
-      writeData(wb, "Sheet1", row, startRow = getSheetDims(wb, "Sheet1")[1] + 1, colNames = FALSE)
-      saveWorkbook(wb, file, overwrite = TRUE)
+      # Read the existing data from the file
+      old_data <- read.xlsx(file)
+      # Check if the new row is duplicate
+      if (any(duplicated(rbind(old_data, row)))) {
+        # Show a warning message
+        showNotification("Duplicate data entered!", type = "warning", id = "warning3")
+      } else {
+        # Write the new row to the file
+        writeData(wb, "Sheet1", row, startRow = getSheetDims(wb, "Sheet1")[1] + 1, colNames = FALSE)
+        saveWorkbook(wb, file, overwrite = TRUE)
+      }
     }
   }
 }
