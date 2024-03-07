@@ -1,0 +1,12 @@
+name: IESRTrainingRegistrationPage
+title: IESRTrainingRegistrationPage
+username: roygicheru
+account: roygicheru
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11404084
+bundleId: 8331973
+url: https://roygicheru.shinyapps.io/IESRTrainingRegistrationPage/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
