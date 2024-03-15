@@ -116,7 +116,7 @@ server <- function(input, output, session) {
         textInput("company", "Company"),
         textInput("mobileNo", "Mobile No."),
         textInput("email", "E-mail Address"),
-        actionButton("submit2", "Submit",class = "btn-primary")
+        actionButton("submit2", "Submit", class = "btn-primary")
       )
     }
   })
@@ -145,8 +145,8 @@ server <- function(input, output, session) {
   # Observe clicks on submit buttons
   observeEvent(input$submit1, {
     if (isInternalFilled()) {
-      # Update internal data with new entry
-      internalData(rbind(internalData(), data.frame(
+      # Create a data frame with the correct structure
+      new_entry <- data.frame(
         First_Name = input$fname,
         Second_Name = input$sname,
         Surname = input$lname,
@@ -155,7 +155,9 @@ server <- function(input, output, session) {
         Mobile_Number = input$mobile,
         Station_Region = input$station,
         Supervisor = input$super
-      )))
+      )
+      # Update internal data with new entry
+      internalData(rbind(internalData(), new_entry))
       # Clear input fields for next submission
       updateTextInput(session, "fname", value = "")
       updateTextInput(session, "sname", value = "")
@@ -167,20 +169,27 @@ server <- function(input, output, session) {
       updateTextInput(session, "super", value = "")
     } else {
       # Show error message if all fields are not filled
-      showModal(modalOption(title = "Error", text = "Please fill all fields for Internal Registration"))
+      showModal(
+        modalDialog(
+          title = "Error",
+          "Please fill all fields for Internal Registration"
+        )
+      )
     }
   })
   
   observeEvent(input$submit2, {
     if (isCorporateFilled()) {
-      # Update corporate data with new entry
-      corporateData(rbind(corporateData(), data.frame(
+      # Create a data frame with the correct structure
+      new_entry <- data.frame(
         Name_of_Participant = input$participant,
         National_ID = input$nationalID,
         Company = input$company,
         Mobile_No = input$mobileNo,
         Email = input$email
-      )))
+      )
+      # Update corporate data with new entry
+      corporateData(rbind(corporateData(), new_entry))
       # Clear input fields for next submission
       updateTextInput(session, "participant", value = "")
       updateNumericInput(session, "nationalID", value = NULL)
@@ -189,27 +198,34 @@ server <- function(input, output, session) {
       updateTextInput(session, "email", value = "")
     } else {
       # Show error message if all fields are not filled
-      showModal(modalOption(title = "Error", text = "Please fill all fields for Corporate Registration"))
+      showModal(
+        modalDialog(
+          title = "Error",
+          "Please fill all fields for Corporate Registration"
+        )
+      )
     }
   })
+  
   
   # Download buttons functionality
   output$download1 <- downloadHandler(
     filename = function() { "Internal_Data.xlsx" },
     content = function(file) {
-      write.xlsx(internalData(), file, sheetName = "Internal Employees")
+      write.xlsx(internalData(), file, sheetName = "Internal Employees", append = FALSE)
     }
   )
   
   output$download2 <- downloadHandler(
     filename = function() { "Corporate_Data.xlsx" },
     content = function(file) {
-      write.xlsx(corporateData(), file, sheetName = "Corporate Employees")
+      write.xlsx(corporateData(), file, sheetName = "Corporate Employees", append = FALSE)
     }
   )
 }
 
 shinyApp(ui, server)
+
 
 
 
